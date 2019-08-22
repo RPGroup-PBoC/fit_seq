@@ -1,10 +1,11 @@
-# Git + GitHub As A Platform For Reproducible Research 
+# Biophysical fitness landscape
 
 ## Overview
-This repository sets out the skeleton of an organizational structure used for scientific research. It loosely follows what I have used for several of my research projects and I hope it inspires you to conduct your research in an open, reproducible, and honest manner.
+This repository contains all of the code used for the `fit_seq` project that
+combines the approach of sort-seq with biophysically-inspired fitness
+landscapes.
 
-## How to Use
-To use this template for your research, fork this repository, change the name to something descriptive for your project, and adjust the licensing as you see fit. 
+# The following part of this README file will be modified at later stages of the project
 
 ## Layout
 
