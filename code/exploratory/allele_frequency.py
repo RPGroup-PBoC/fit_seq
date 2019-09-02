@@ -90,4 +90,4 @@ for day, data in df_group:
     df_counts = df_counts.append(df, ignore_index=True)
 
 print('write file into memory')
-df_counts.to_csv(outputdir + 'rel_allele_freq.csv', index=False)
+df_counts.to_csv(outputdir + 'rel_read_count.csv', index=False)
