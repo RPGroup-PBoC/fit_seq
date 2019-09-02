@@ -66,6 +66,8 @@ graphicspath.tex
 *.dill
 
 # Local directories to ignore
+data/energy_matrix
+data/mi_freq_counts
 data/raw_sequencing
 _site/
 library.bib
