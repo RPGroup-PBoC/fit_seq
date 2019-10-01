@@ -12,12 +12,12 @@ import numpy as np
 Title:
     viz.py
 Last update:
-    2019-05-10
+    2019-10-01
 Author(s):
     Manuel Razo-Mejia
 Purpose:
     This file compiles all of the relevant functions for plotting style
-    related to the evo_mcw project.
+    related to the fit_seq project.
 """
 
 # Default RP plotting style
