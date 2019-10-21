@@ -3,6 +3,7 @@
 """Top level package for fit_seq utilities"""
 
 from . import viz
+from . import seq
 
 __author__ = """Manuel Razo & Emmanuel Flores"""
 __email__ = """mrazomej {at} caltech.edu"""
