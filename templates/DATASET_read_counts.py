@@ -32,14 +32,14 @@ PATTERN =
 TIME_IDX = 3
 
 # Define data directory
-datadir = '../../data/raw_sequencing/' +\
-          f'{DATASET}'
+datadir = '../../../data/raw_sequencing/' +\
+          f'{DATASET}/'
 
 # Define output dir
-outputdir = '../../data/allele_freq/'
+outputdir = '../../../data/raw_read_counts/'
 
 # List all fastq.gz files
-fastq_files = glob.glob(f'{datadir}*{PATTERN}')
+fastq_files = glob.glob(f'{datadir}{PATTERN}')
 
 #%%
 df_seq = pd.DataFrame()
@@ -73,22 +73,22 @@ for fastq in fastq_files:
     df = pd.DataFrame.from_records(seq_list, columns=names)
 
     # Add bin number to dataframe
-    df['day'] =  [day] * len(df)
+    df['time'] =  [time] * len(df)
     
     # Append to dataframe
     df_seq = df_seq.append(df, ignore_index=True)
 
 #%%
 # Group by day
-df_group = df_seq.groupby('day')
+df_group = df_seq.groupby('time')
 
 # Initialize dataframe to save counts
 df_counts = pd.DataFrame()
 
 print('counting alleles')
 # Loop through days
-for day, data in df_group:
-    print(day)
+for time, data in df_group:
+    print(time)
     # Count unique entries
     counts = data['sequence'].value_counts()
     # Extract index
@@ -96,7 +96,7 @@ for day, data in df_group:
     # Generate dataframe
     df = pd.DataFrame({'sequence': idx,
                        'counts': list(counts),
-                       'day': [day] * len(counts)})
+                       'time': [time] * len(counts)})
     # Append to general dataframe
     df_counts = df_counts.append(df, ignore_index=True)
 
