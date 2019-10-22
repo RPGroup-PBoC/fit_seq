@@ -62,3 +62,41 @@ def map_energy(seq, emat, seq_dict={'A':0,'C':1,'G':2,'T':3}):
     seq_mat = seq2mat(seq[0:emat_len], seq_dict)
     # Map it to energies
     return np.sum(seq_mat * emat)
+
+def seq_scan(seq, emat):
+    '''
+    Function that scans a sequence seq with a given energy
+    matrix emat and returns the minimum binding energy for all positions.
+    
+    Parameters
+    ----------
+    seq : str.
+        DNA sequence to be scanned with energy matrix
+    emat : 2D-array.
+        Energy matrix to map sequences to energies.
+        IMPORTANT: This function assumes that each of the rows
+        in the energy matrix map to A, C, G, T in that specific order.
+        
+    Returns
+    -------
+    min_energy : float.
+        Minimum energy
+    min_idx : int.
+        Index entry of the minimum energy
+    '''
+    # Map sequence to matrix format
+    seq_mat = seq2mat(seq)
+
+    # Infer number of scans
+    n_scan = seq_mat.shape[1] - emat_array.shape[1]
+
+    # Initialize array to save scanned energies
+    seq_scan = np.zeros(n_scan)
+
+    # Loop through all positions
+    for i in np.arange(n_scan):
+        # Do elementwise multiplication of matrix section to convert
+        # to energy
+        seq_scan[i] = np.sum(seq_mat[:, i:i+emat_len] * emat_array)
+        
+    return min(seq_scan), np.argmin(seq_scan)
