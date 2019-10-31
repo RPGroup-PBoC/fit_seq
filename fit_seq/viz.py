@@ -118,16 +118,18 @@ def pboc_single(p):
     p.grid.grid_line_color = 'white'
 
     # Legend
-    p.legend.background_fill_color = '#E3DCD0'
-    p.legend.border_line_color = '#FFFFFF'
-    p.legend.border_line_width = 1.5
-    p.legend.background_fill_alpha = 0.5
+    if p.legend:
+        p.legend.background_fill_color = '#E3DCD0'
+        p.legend.border_line_color = '#FFFFFF'
+        p.legend.border_line_width = 1.5
+        p.legend.background_fill_alpha = 0.5
 
     # Title
-    p.title.background_fill_color = '#FFEDC0'
-    p.title.text_font_style = 'normal'
-    p.title.align = 'center'
-    p.title.text_font = 'Helvetica'
-    p.title.offset = 2
+    if p.title:
+        p.title.background_fill_color = '#FFEDC0'
+        p.title.text_font_style = 'normal'
+        p.title.align = 'center'
+        p.title.text_font = 'Helvetica'
+        p.title.offset = 2
 
 

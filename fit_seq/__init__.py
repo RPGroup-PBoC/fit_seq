@@ -4,6 +4,7 @@
 
 from . import viz
 from . import seq
+from . import popgen
 
 __author__ = """Manuel Razo & Emmanuel Flores"""
 __email__ = """mrazomej {at} caltech.edu"""

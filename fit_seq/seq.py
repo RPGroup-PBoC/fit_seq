@@ -4,7 +4,7 @@ import numpy as np
 Title:
     viz.py
 Last update:
-    2019-10-01
+    2019-10-30
 Author(s):
     Manuel Razo-Mejia
 Purpose:
@@ -100,3 +100,50 @@ def seq_scan(seq, emat):
         seq_scan[i] = np.sum(seq_mat[:, i:i+emat_len] * emat_array)
         
     return min(seq_scan), np.argmin(seq_scan)
+
+# Generating random mutated sequences
+def mut_seq(seq, p_mut, n_mut,
+            bp_prob=dict(A=1/4, C=1/4,
+                         G=1/4, T=1/4)):
+    '''
+    Function that generates random mutants from a reference 
+    sequence at certain mutation rate.
+    
+    Parameters
+    ----------
+    seq : str.
+        reference sequence to be mutated.
+    p_mut : float. [0, 1]
+        probability of a base pair being mutated.
+    n_mut : int.
+        number of random sequences to generate.
+    bp_prob : dict. Default: 1/4 for all 4 bp.
+        dictionary containing the probability of a random
+        base pair being selected if a position is mutated.
+        
+    Returns
+    -------
+    sequences : array-like
+        array of mutated sequences.
+    '''
+    # Extract elements and probabilities from dictionary
+    bases = sorted(bp_prob.keys())
+    p_bases = [bp_prob[x] for x in bases]  # to order them
+    
+    # Generate matrix indicating which bp to substitute
+    subs_mat = np.random.binomial(1, p_mut, size=[n_mut, len(seq)])
+    
+    # Initialize array to save mutated sequences by repeating reference seq
+    seqs = [seq] * n_mut
+    
+    # Loop through list elements
+    for i, subs in enumerate(subs_mat):
+        # Generate substitutions for each position
+        sub_bp = np.random.choice(bases, size=sum(subs), p=p_bases)
+        # Find positions for substitutions
+        idx = np.where(subs)[0]
+        # Loop through positions
+        for j, pos in enumerate(idx):
+            seqs[i] = seqs[i][:pos] + sub_bp[j] + seqs[i][pos+1:]
+            
+    return seqs
