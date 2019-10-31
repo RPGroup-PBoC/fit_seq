@@ -92,3 +92,42 @@ def pboc_style_bokeh():
             }}}
 
     return theme_json
+
+def pboc_style_bokeh_single(p):
+    '''
+    Formats a single bokeh plot to that used in 
+    Physical Biology of the Cell, 2nd edition.
+    Parameters
+    ----------
+    p : bokeh Figure
+    '''
+    # Figure
+    p.background_fill_color = '#E3DCD0'
+    p.outline_line_color = '#FFFFFF'
+
+    # Axis
+    p.axis.axis_line_color = "white"
+    p.axis.major_tick_in = 7
+    p.axis.major_tick_line_width = 2.5
+    p.axis.major_tick_line_color = "white"
+    p.axis.minor_tick_line_color = "white"
+    p.axis.axis_label_text_font = 'Helvetica'
+    p.axis.axis_label_text_font_style = 'normal'
+
+    # Grid
+    p.grid.grid_line_color = 'white'
+
+    # Legend
+    p.legend.background_fill_color = '#E3DCD0'
+    p.legend.border_line_color = '#FFFFFF'
+    p.legend.border_line_width = 1.5
+    p.legend.background_fill_alpha = 0.5
+
+    # Title
+    p.title.background_fill_color = '#FFEDC0'
+    p.title.text_font_style = 'normal'
+    p.title.align = 'center'
+    p.title.text_font = 'Helvetica'
+    p.title.offset = 2
+
+
