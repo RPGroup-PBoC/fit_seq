@@ -93,7 +93,7 @@ def pboc_style_bokeh():
 
     return theme_json
 
-def pboc_style_bokeh_single(p):
+def pboc_single(p):
     '''
     Formats a single bokeh plot to that used in 
     Physical Biology of the Cell, 2nd edition.
