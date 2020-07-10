@@ -7,8 +7,7 @@ import os
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-import evo_mwc.viz
-import evo_mwc.fitderiv
+import fit_seq.viz
 import seaborn as sns
 import statsmodels.api as sm
 import git
@@ -22,7 +21,7 @@ repo = git.Repo("./", search_parent_directories=True)
 homedir = repo.working_dir
 
 # Define directory where stan file exists
-standir = f"{homedir}/evo_mwc/stan_code/"
+standir = f"{homedir}/fit_seq/stan_code/"
 
 matplotlib.use('Agg')
 evo_mwc.viz.pboc_style_mpl()

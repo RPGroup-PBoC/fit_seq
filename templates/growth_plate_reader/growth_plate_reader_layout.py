@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib import colors
 import seaborn as sns
-import evo_mwc.viz
+import fit_seq.viz
 import git
 
 # Find home directory for repo

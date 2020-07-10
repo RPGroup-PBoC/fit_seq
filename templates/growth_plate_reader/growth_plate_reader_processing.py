@@ -7,7 +7,7 @@ import glob
 import csv
 import matplotlib
 import matplotlib.pyplot as plt
-import evo_mwc.viz
+import fit_seq.viz
 import git
 
 # Find home directory for repo
