@@ -3,7 +3,7 @@ status: Rejected
 reason: experiment not yet completed
 ---
 
-# YYY-MM-DD Plate Reader Growth Measurement
+# YYYY-MM-DD Plate Reader Growth Measurement
 
 ## Purpose
 This experiment aims to measure the growth rate of the *E. coli* strains of interest in media with XX selection.
@@ -21,15 +21,24 @@ This experiment aims to measure the growth rate of the *E. coli* strains of inte
 | `pZS4*5-mCherry`| `galK<>25O2+11-sacB-cmR-YFP`, `ybcN<>4*5-RBS1027-lacI` |  HG105 |`O2 R260` |
 | `pZS4*5-mCherry`| `galK<>25O2+11-sacB-cmR-YFP`, , `ybcN<>4*5-RBS1L-lacI` |  HG105 |`O2 R1740` |
 
+## Plate Layout
+
+**96 plate layout**
+
+![plate layout](output/plate_layout.png)
+
+
 ## Notes & Observations
 
 
 ## Analysis Files
 
 **Whole Plate Growth Curves**
+
 ![plate layout](output/growth_plate_summary.png)
 
 **Whole Plate Growth Rate Inferences**
+
 ![plate layout](output/growth_rate_summary.png)
 
 ## Experimental Protocol

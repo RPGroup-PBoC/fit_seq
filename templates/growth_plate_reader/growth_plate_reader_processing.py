@@ -17,17 +17,16 @@ homedir = repo.working_dir
 matplotlib.use('Agg')
 evo_mwc.viz.pboc_style_mpl()
 
+# List data to be read
+TABLES = ["OD600", "YFP"]
+
 # Find date
 workdir = os.getcwd().split('/')[-1]
 DATE = int(workdir.split('_')[0])
 RUN_NO = int(workdir.split('_')[1][-1])
-
-# ----------------------------------
+# %%
 # Load the data.
 file = glob.glob(f'{homedir}/data/plate_reader/{DATE}_r{RUN_NO}_*.csv')[0]
-data = pd.read_csv(file, header=None)
-# Drop NaNs
-data = data.dropna('index', 'any')
 
 # Read features on plate layout
 xl = pd.ExcelFile(f'./{DATE}_plate_layout.xlsx')
@@ -45,29 +44,80 @@ for l in layout:
     info = info.ravel()
     # Append to list
     layout_info.append(info)
+# %%
+if len(TABLES) > 1:
+    ## Find empty lines in file
+    # Initialize list to save empty lines index
+    empty_line = list()
+    # Open data file as text file
+    with open(file) as f:
+        # Loop through rows
+        for i, line in enumerate(f):
+            # Find and save empty row index
+            if not line.strip():
+                empty_line.append(i)
+    
+    # Read tables and save them into dictionary
+    table_dict = {}
+    for i, table in enumerate(TABLES):
+        table_dict[table] = pd.read_csv(
+            file, 
+            header=None,
+            skiprows=range(empty_line[i * 2] + 1),
+            nrows=empty_line[i * 2 + 1] - empty_line[i * 2]
+        ).dropna("index", "any")
 
-# Set columns for tidy data frame
-columns = ['time_min', 'temp_C', 'OD600'] + layout
+    # Set columns for tidy data frame
+    columns = ['time_min', 'temp_C'] + TABLES + layout
+    # Initialize data frame
+    df = pd.DataFrame(columns=columns)
 
-# Initialize data frame
-df = pd.DataFrame(columns=columns)
+    # Loop through columns to generate tidy data frame
+    for i, col in enumerate(table_dict[TABLES[0]].loc[:, 2:].columns):
+        # Initialize dataframe to save this particular well data
+        df_well = pd.DataFrame(columns=columns)
+        # Add time and temperature
+        df_well['time_min'] = table_dict[TABLES[0]].loc[:, 0]
+        df_well['temp_C'] = table_dict[TABLES[0]].loc[:, 1]
+        # Add OD600 reads
+        df_well[TABLES[0]] = table_dict[TABLES[0]][col]
+        df_well[TABLES[1]] = table_dict[TABLES[1]][col]
+        # Add parameters in layout
+        for l, param in enumerate(layout):
+            # Extract information for particular well and repeat it for each
+            # time point
+            df_well[param] = layout_info[l][i]
+        # Append entries to dataframe
+        df = pd.concat([df, df_well])
 
-# Loop through columns to generate tidy data frame
-for i, col in enumerate(data.loc[:, 2:].columns):
-    # Initialize dataframe to save this particular well data
-    df_well = pd.DataFrame(columns=columns)
-    # Add time and temperature
-    df_well['time_min'] = data.loc[:, 0]
-    df_well['temp_C'] = data.loc[:, 1]
-    # Add OD600 reads
-    df_well['OD600'] = data[col]
-    # Add parameters in layout
-    for l, param in enumerate(layout):
-        # Extract information for particular well and repeat it for each
-        # time point
-        df_well[param] = layout_info[l][i]
-    # Append entries to dataframe
-    df = pd.concat([df, df_well])
+else:
+    # Read single table for OD600
+    data = pd.read_csv(file, header=None)
+    # Drop NaNs
+    data = data.dropna('index', 'any')
+
+    # Set columns for tidy data frame
+    columns = ['time_min', 'temp_C', 'OD600'] + layout
+
+    # Initialize data frame
+    df = pd.DataFrame(columns=columns)
+
+    # Loop through columns to generate tidy data frame
+    for i, col in enumerate(data.loc[:, 2:].columns):
+        # Initialize dataframe to save this particular well data
+        df_well = pd.DataFrame(columns=columns)
+        # Add time and temperature
+        df_well['time_min'] = data.loc[:, 0]
+        df_well['temp_C'] = data.loc[:, 1]
+        # Add OD600 reads
+        df_well['OD600'] = data[col]
+        # Add parameters in layout
+        for l, param in enumerate(layout):
+            # Extract information for particular well and repeat it for each
+            # time point
+            df_well[param] = layout_info[l][i]
+        # Append entries to dataframe
+        df = pd.concat([df, df_well])
 
 
 # Initialize array to save strains operator, repressor and volume marker
@@ -120,8 +170,14 @@ for r in np.arange(layout_shape[0]):
         ax[r][c].get_xaxis().set_visible(False)
         ax[r][c].get_yaxis().set_visible(False)
         # Plot data
-        ax[r][c].scatter(data.loc[:, 0],  data.loc[:, i],
-                         marker='.', s=0.2)
+        if len(TABLES) == 0:
+            ax[r][c].scatter(data.loc[:, 0],  data.loc[:, i],
+                            marker='.', s=0.2)
+        else:
+            ax[r][c].scatter(table_dict["OD600"].loc[:, 0],
+                            table_dict["OD600"].loc[:, i],
+                            marker='.', s=0.2)
+
         # increase counter
         i += 1
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# %%
 import numpy as np
 import pandas as pd
 import string
@@ -12,9 +13,16 @@ import seaborn as sns
 import statsmodels.api as sm
 import git
 
+# Import libraries necessary for Bayesian analysis
+import cmdstanpy
+import arviz as az
+
 # Find home directory for repo
 repo = git.Repo("./", search_parent_directories=True)
 homedir = repo.working_dir
+
+# Define directory where stan file exists
+standir = f"{homedir}/evo_mwc/stan_code/"
 
 matplotlib.use('Agg')
 evo_mwc.viz.pboc_style_mpl()
@@ -24,18 +32,17 @@ workdir = os.getcwd().split('/')[-1]
 DATE = int(workdir.split('_')[0])
 RUN_NO = int(workdir.split('_')[1][-1])
 
-
-# Define which analysis to perform
-GROUPED = True # Perform analysis per groups
-PER_WELL = True  # Perform analysis per well
-
 # Define parameters to group strains by
 GROUP = ['strain', 'pos_selection', 'neg_selection']
 
+# Define parameters for HMC run
+CHAINS = 6
+ITER_SAMPLING = 250
+
 # Define if you only want to plot existing results
 REPLOT = False
-# ----------------------------------
 
+# %%
 # Load the data.
 data = pd.read_csv(f'output/{DATE}_r{RUN_NO}_growth_plate.csv')
 
@@ -49,127 +56,7 @@ for k, v in blank_vals.items():
     data.loc[data['time_min'] == k, 'blank_val'] = v
 data['OD_sub'] = data['OD600'] - data['blank_val']
 
-# ----------------------------------
-# Compute growth rate for grouped data
-
-# Group data by selected criteria
-data_group = data.groupby(GROUP)
-# List groups
-groups = [group for group, data in data_group]
-
-# Initialize data frame to save derivatives
-columns = list(data.columns) + ['logOD_fit', 'logOD_fit_std',
-                                'growth_rate', 'growth_rate_std',
-                                'doubling_time', 'doubling_time_std']
-df_gp = pd.DataFrame(columns=columns)
-
-# Check if the analysis should be done
-if (not REPLOT) & (GROUPED):
-    # Loop through groups
-    for group, df in data_group:
-        # Check if the group is not a blank
-        if (group[0] == 'blank'):
-            continue
-        print(group)
-        # Build input as required by the Gaussian process function.
-        # This is time as  an array and then the OD as a 2D array with a column
-        # per replica
-        # Obtain time
-        time = np.sort(df['time_min'].unique())
-        # List wells in group
-        wells = list(df.well.unique())
-        # Extract OD measurements into the corresponding array
-        if len(wells) == 1:  # For cases with one replica only
-            OD = df[df.well == wells[0]].sort_values(by='time_min').OD600.values
-        else:  # For cases with multiple replicas
-            OD = np.zeros([len(time), len(wells)])
-            # Loop through wells
-            for i, well in enumerate(wells):
-                # Extract OD data and sort by time (just in case)
-                OD[:, i] = df[df.well ==
-                              well].sort_values(by='time_min').OD600.values
-
-        # Using the package [`fitderiv`]
-        # (http://swainlab.bio.ed.ac.uk/software/fitderiv/)
-        # from Peter Swain's lab,
-        # perform non-parametric inference of the time-dependent growth rates.
-        gp = evo_mwc.fitderiv.fitderiv(time, OD)
-
-        # Create dataframe with full time series results of the fit
-        gp_df = gp.export('NONE', savegp=False, savestats=False)
-        # List columns to be saved
-        gp_df = gp_df[['t', 'log(OD)', 'log(OD) error',
-                       'gr', 'gr error']]
-        # Rename some columns to remove undesired characters
-        gp_df.rename(columns={'log(OD)': 'logOD_fit',
-                              'log(OD) error': 'logOD_fit_std',
-                              'gr': 'growth_rate',
-                              'gr error': 'growth_rate_std',
-                              't': 'time_min'}, inplace=True)
-        # Compute doubling time
-        gp_df['doubling_time'] = np.log(2) / gp_df['growth_rate']
-        # Compute doubling time STD
-        gp_df['doubling_time_std'] = np.log(2) * gp_df['growth_rate_std'] /\
-                                     (gp_df['growth_rate']**2)
-
-        # List information that is missing from this dataframe
-        miss_cols = [col for col in df.columns if col not in gp_df]
-
-        gp_df = pd.concat([gp_df.reset_index(drop=True),
-                           df[df.well ==
-                           wells[0]][miss_cols].reset_index(drop=True)],
-                          axis=1)
-
-        # Append dataframe
-        df_gp = pd.concat([df_gp, gp_df], ignore_index=True)
-
-    # Export result
-    df_gp.to_csv(f'output/{DATE}_r{RUN_NO}_gp_grouped.csv',
-                 index=False)
-
-# Perform plots for grouped data
-if GROUPED:
-    # Read derivatives
-    df_gp = pd.read_csv(f'output/{DATE}_r{RUN_NO}_gp_grouped.csv')
-
-    # group derivatives
-    df_gp_group = df_gp.groupby(GROUP)
-    # Print growth curve and its derivative for each group
-
-    # Initialize multi-page PDF
-    with PdfPages('output/growth_rate_grouped.pdf') as pdf:
-        # Loop through groups
-        for group in groups:
-            # check that there are no blanks
-            if (group[0] == 'blank'):
-                continue
-            # Initialize figure
-            fig, ax = plt.subplots(2, 1, figsize=(4, 4), sharex=True)
-            # Extract curve data
-            growth_data = data_group.get_group(group)
-            rate_data = df_gp_group.get_group(group)
-            # Plot plate reade data
-            ax[0].plot(growth_data.time_min, growth_data.OD600, lw=0,
-                       marker='.')
-            # Plot growth rate with credible region
-            ax[1].plot(rate_data.time_min, rate_data.growth_rate)
-            ax[1].fill_between(rate_data.time_min,
-                               rate_data.growth_rate +
-                               rate_data.growth_rate_std,
-                               rate_data.growth_rate -
-                               rate_data.growth_rate_std,
-                               alpha=0.5)
-            # Label plot
-            ax[0].set_title(str(group))
-            ax[0].set_ylabel(r'OD$_{600}$')
-            ax[1].set_ylabel(r'growth rate (min$^{-1}$)')
-            ax[1].set_xlabel('time (min)')
-            plt.tight_layout()
-            pdf.savefig()
-            plt.close()
-
-
-# ----------------------------------
+# %%
 # Compute growth rate for individual well data
 
 # Group data by well and strain
@@ -179,13 +66,15 @@ data_group = data.groupby(['well', 'strain'])
 groups = [group for group, data in data_group]
 
 # Initialize data frame to save derivatives
-columns = list(data.columns) + ['logOD_fit', 'logOD_fit_std',
-                                'growth_rate', 'growth_rate_std',
-                                'doubling_time', 'doubling_time_std']
-df_wells = pd.DataFrame(columns=columns)
+df_gp = pd.DataFrame([])
 
 # Check if the analysis should be done
-if (not REPLOT) & (PER_WELL):
+if (not REPLOT):
+    print("Compiling Stan program")
+
+    sm = cmdstanpy.CmdStanModel(
+        stan_file=f"{standir}/gp_growth_rate_prior_deriv.stan"
+    )
     # Loop through groups
     for group, df in data_group:
         # Check if the group is not a blank
@@ -193,90 +82,115 @@ if (not REPLOT) & (PER_WELL):
             continue
         print(group)
         # Build input as required by the Gaussian process function.
-        # This is time as  an array and then the OD as a 2D array with a column
-        # per replica
-        # Obtain time
-        time = np.sort(df['time_min'].unique())
+        # Define time points were data was measured
+        t = df["time_min"].values
+        # Define number of time points
+        N = len(t)
+        # Define OD measurements
+        y = df["OD600"].values
+        # Define where PPC samples will be taken
+        t_predict = t
+        # Define number of points in PPC
+        N_predict = len(t_predict)
 
-        # Extract OD measurements into the corresponding array
-        OD = df.sort_values(by='time_min').OD600.values
-        # Using the package [`fitderiv`]
-        # (http://swainlab.bio.ed.ac.uk/software/fitderiv/)
-        # from Peter Swain's lab,
-        # perform non-parametric inference of the time-dependent growth rates.
-        gp = evo_mwc.fitderiv.fitderiv(time, OD)
+        # Pack parameters in dictionary
+        data = {
+            "N" : N,  # number of time points
+            "t": t,  # time points where data was evaluated
+            "y": y,  # data's optical density
+            "N_predict": N_predict,  # number of datum in PPC
+            "t_predict": t_predict,  # time points where PPC is evaluated
+            "alpha_param": [0, 1],  # parameters for alpha prior
+            "sigma_param": [0, 1],  # parameters for sigma prior
+            "rho_param": [1000, 1000],  # parameters for rho prior
+        }
 
-        # Create dataframe with full time series results of the fit
-        gp_df = gp.export('NONE', savegp=False, savestats=False)
-        # List columns to be saved
-        gp_df = gp_df[['t', 'log(OD)', 'log(OD) error',
-                       'gr', 'gr error']]
-        # Rename some columns to remove undesired characters
-        gp_df.rename(columns={'log(OD)': 'logOD_fit',
-                              'log(OD) error': 'logOD_fit_std',
-                              'gr': 'growth_rate',
-                              'gr error': 'growth_rate_std',
-                              't': 'time_min'}, inplace=True)
-        # Compute doubling time
-        gp_df['doubling_time'] = np.log(2) / gp_df['growth_rate']
-        # Compute doubling time STD
-        gp_df['doubling_time_std'] = np.log(2) * gp_df['growth_rate_std'] /\
-                                     (gp_df['growth_rate']**2)
+        print(f"Sampling GP for well {group[0]}")
+        samples = sm.sample(
+            data=data,
+            chains=CHAINS,
+            iter_sampling=ITER_SAMPLING,
+            show_progress=False,
+        )
+        print("Done!")
+        samples = az.from_cmdstanpy(posterior=samples)
 
-        # List information that is missing from this dataframe
-        miss_cols = [col for col in df.columns if col not in gp_df]
-
-        gp_df = pd.concat([gp_df.reset_index(drop=True),
-                           df[miss_cols].reset_index(drop=True)],
-                          axis=1)
+        # Extract GP OD data, stacking together chains and draws as a single 
+        # dimension
+        data_ppc = samples.posterior["y_predict"].stack(
+            {"sample": ("chain", "draw")}
+        ).transpose("sample", "y_predict_dim_0")
+        # Append inferred OD columns
+        df = df.assign(
+            gp_OD600 = np.median(data_ppc.squeeze().values, axis=0),
+            gp_OD600_std = np.std(data_ppc.squeeze().values, axis=0),
+        )
+        # Extract GP derivative data, stacking together chains and draws as a 
+        # single dimension
+        data_ppc = samples.posterior["dy_predict"].stack(
+            {"sample": ("chain", "draw")}
+        ).transpose("sample", "dy_predict_dim_0")
+        # Append inferred derivative columns
+        df = df.assign(
+            gp_growth_rate = np.median(data_ppc.squeeze().values, axis=0),
+            gp_growth_rate_std = np.std(data_ppc.squeeze().values, axis=0),
+        )
+        # Extract GP doubling time data, stacking together chains and draws as a 
+        # single dimension
+        data_ppc = samples.posterior["doubling_time"].stack(
+            {"sample": ("chain", "draw")}
+        ).transpose("sample", "doubling_time_dim_0")
+        # Append inferred derivative columns
+        df = df.assign(
+            gp_doubling_time = np.median(data_ppc.squeeze().values, axis=0),
+            gp_doubling_time_std = np.std(data_ppc.squeeze().values, axis=0),
+        )
 
         # Append dataframe
-        df_gp = pd.concat([df_gp, gp_df], ignore_index=True)
+        df_gp = pd.concat([df_gp, df], ignore_index=True)
 
     # Export result
     df_gp.to_csv(f'output/{DATE}_r{RUN_NO}_gp_per_well.csv',
                  index=False)
 
-# Perform plots for grouped data
-if PER_WELL:
-    # Read derivatives
-    df_gp = pd.read_csv(f'output/{DATE}_r{RUN_NO}_gp_per_well.csv')
+# Read derivatives
+df_gp = pd.read_csv(f'output/{DATE}_r{RUN_NO}_gp_per_well.csv')
 
-    # group derivatives
-    df_gp_group = df_gp.groupby(['well', 'strain'])
-    # Print growth curve and its derivative for each group
+# group derivatives
+df_gp_group = df_gp.groupby(['well', 'strain'])
+# Print growth curve and its derivative for each group
 
-    # Initialize multi-page PDF
-    with PdfPages('output/growth_rate_per_well.pdf') as pdf:
-        # Loop through groups
-        for group in groups:
-            # check that there are no blanks
-            if group[1] == 'blank':
-                continue
-            # Initialize figure
-            fig, ax = plt.subplots(2, 1, figsize=(4, 4), sharex=True)
-            # Extract curve data
-            growth_data = data_group.get_group(group)
-            rate_data = df_gp_group.get_group(group)
-            # Plot plate reade data
-            ax[0].plot(growth_data.time_min, growth_data.OD600, lw=0,
-                       marker='.')
-            # Plot growth rate with credible region
-            ax[1].plot(rate_data.time_min, rate_data.growth_rate)
-            ax[1].fill_between(rate_data.time_min,
-                               rate_data.growth_rate +
-                               rate_data.growth_rate_std,
-                               rate_data.growth_rate -
-                               rate_data.growth_rate_std,
-                               alpha=0.5)
-            # Label plot
-            ax[0].set_title(str(group))
-            ax[0].set_ylabel(r'OD$_{600}$')
-            ax[1].set_ylabel(r'growth rate (min$^{-1}$)')
-            ax[1].set_xlabel('time (min)')
-            plt.tight_layout()
-            pdf.savefig()
-            plt.close()
+# Initialize multi-page PDF
+with PdfPages('output/growth_rate_per_well.pdf') as pdf:
+    # Loop through groups
+    for group in groups:
+        # check that there are no blanks
+        if group[1] == 'blank':
+            continue
+        # Initialize figure
+        fig, ax = plt.subplots(2, 1, figsize=(4, 4), sharex=True)
+        # Extract curve data
+        growth_data = data_group.get_group(group)
+        rate_data = df_gp_group.get_group(group)
+        # Plot plate reade data
+        ax[0].plot(growth_data.time_min, growth_data.OD600, lw=0,
+                    marker='.')
+        # Plot growth rate with credible region
+        ax[1].plot(rate_data.time_min, rate_data.gp_growth_rate)
+        ax[1].fill_between(rate_data.time_min,
+                            rate_data.gp_growth_rate +
+                            rate_data.gp_growth_rate_std,
+                            rate_data.gp_growth_rate -
+                            rate_data.gp_growth_rate_std,
+                            alpha=0.5)
+        # Label plot
+        ax[0].set_title(str(group))
+        ax[0].set_ylabel(r'OD$_{600}$')
+        ax[1].set_ylabel(r'growth rate (min$^{-1}$)')
+        ax[1].set_xlabel('time (min)')
+        plt.tight_layout()
+        pdf.savefig()
+        plt.close()
 
 
     # Make summary figure of growth rates.
@@ -286,20 +200,27 @@ if PER_WELL:
     layout_shape = layout.shape
 
     # Initlaize plot
-    fig, ax = plt.subplots(layout_shape[0], layout_shape[1], figsize=(8, 4),
-                           sharex=True, sharey=True)
-
+    fig, ax = plt.subplots(
+        layout_shape[0],
+        layout_shape[1],
+        figsize=(8, 4),
+        sharex=True,
+        sharey=True
+    )
     # Loop through each well
     for group, df in df_gp_group:
         # Find corresponding row and column of plot
         r, c = [int(x) for x in np.where(layout == group[0])]
         # Set plot axis
-        ax[r][c].set_ylim([-0.01, 0.01])
         # Plot growth rate
         ax[r][c].plot(df.sort_values('time_min').time_min,
-                      df.sort_values('time_min').growth_rate)
-        # increase counter
+                      df.sort_values('time_min').gp_growth_rate)
 
+    # Set ylim for plot
+    ax[0][0].set_ylim([
+        df.gp_growth_rate.min() - 0.001,
+        df.gp_growth_rate.max() + 0.001
+    ])
     # Remove axis from all plots
     ax = ax.ravel() # ravel list of axis
 
