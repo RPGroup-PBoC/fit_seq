@@ -67,7 +67,6 @@ graphicspath.tex
 
 # Local directories to ignore
 fit_seq.egg-info/
-data/
 data/energy_matrix
 data/mi_freq_counts
 data/raw_sequencing
