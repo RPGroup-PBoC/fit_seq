@@ -71,4 +71,5 @@ data/energy_matrix
 data/mi_freq_counts
 data/raw_sequencing
 _site/
+*/stan_code/*
 library.bib
