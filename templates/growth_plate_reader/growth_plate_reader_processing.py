@@ -15,7 +15,7 @@ repo = git.Repo("./", search_parent_directories=True)
 homedir = repo.working_dir
 
 matplotlib.use('Agg')
-evo_mwc.viz.pboc_style_mpl()
+fit_seq.viz.pboc_style_mpl()
 
 # List data to be read
 TABLES = ["OD600", "YFP"]

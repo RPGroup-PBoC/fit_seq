@@ -17,7 +17,7 @@ repo = git.Repo("./", search_parent_directories=True)
 homedir = repo.working_dir
 
 # matplotlib.use('Agg')
-evo_mwc.viz.pboc_style_mpl()
+fit_seq.viz.pboc_style_mpl()
 
 # Find date
 workdir = os.getcwd().split('/')[-1]
@@ -25,7 +25,7 @@ DATE = int(workdir.split('_')[0])
 RUN_NO = int(workdir.split('_')[1][-1])
 
 # List matplotlib colormaps
-cmaps = evo_mwc.viz.mpl_cmaps_dict()
+cmaps = fit_seq.viz.mpl_cmaps_dict()
 
 #%%
 # Read features on plate layout

@@ -24,7 +24,7 @@ homedir = repo.working_dir
 standir = f"{homedir}/fit_seq/stan_code/"
 
 matplotlib.use('Agg')
-evo_mwc.viz.pboc_style_mpl()
+fit_seq.viz.pboc_style_mpl()
 
 # Find date
 workdir = os.getcwd().split('/')[-1]
