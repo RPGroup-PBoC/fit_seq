@@ -101,7 +101,7 @@ if (not REPLOT):
             "t_predict": t_predict,  # time points where PPC is evaluated
             "alpha_param": [0, 1],  # parameters for alpha prior
             "sigma_param": [0, 1],  # parameters for sigma prior
-            "rho_param": [1000, 1000],  # parameters for rho prior
+            "rho_param": [1000, 50],  # parameters for rho prior
         }
 
         print(f"Sampling GP for well {group[0]}")
@@ -217,8 +217,9 @@ with PdfPages('output/growth_rate_per_well.pdf') as pdf:
 
     # Set ylim for plot
     ax[0][0].set_ylim([
-        df.gp_growth_rate.min() - 0.001,
-        df.gp_growth_rate.max() + 0.001
+        df_gp.gp_growth_rate.min() - \
+        abs(df_gp.growth_rate.min()) * 0.2,
+        df_gp.gp_growth_rate.max() * 1.2
     ])
     # Remove axis from all plots
     ax = ax.ravel() # ravel list of axis

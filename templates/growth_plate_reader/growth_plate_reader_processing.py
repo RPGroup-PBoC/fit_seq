@@ -120,24 +120,20 @@ else:
         df = pd.concat([df, df_well])
 
 
-# Initialize array to save strains operator, repressor and volume marker
-op = list()
-rep = list()
+# Initialize array to save strains promoter and volume marker
+prom = list()
 vol = list()
 # Loop through strains
 for strain in df.strain:
     # Check if it is not a blanck
     if strain != 'blank':
-        op.append(strain.split('_')[0])
-        rep.append(int(strain.split('_')[1][1:]))
+        prom.append(strain.split('_')[0])
         vol.append(strain.split('_')[-1])
     else:
-        op.append('blank')
-        rep.append(None)
+        prom.append('blank')
         vol.append('blank')
 # Add columns to data frame
-df['operator'] = op
-df['repressor'] = rep
+df['promoter'] = prom
 df['volume_marker'] = vol
 
 # Convert the time to minutes
