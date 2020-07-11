@@ -8,11 +8,13 @@ import seaborn as sns
 
 import numpy as np
 
+from collections import OrderedDict
+
 """
 Title:
     viz.py
 Last update:
-    2019-10-01
+    2020-07-10
 Author(s):
     Manuel Razo-Mejia
 Purpose:
@@ -132,4 +134,32 @@ def pboc_single(p):
         p.title.text_font = 'Helvetica'
         p.title.offset = 2
 
-
+def mpl_cmaps_dict():
+    '''
+    Function that returns a dictionary with a list of matplotlib colormaps
+    ordered by type of colormap. The categories are:
+    - 'Perceptually Uniform Sequential'
+    - 'Sequential'
+    - 'Diverging'
+    - 'Qualitative'
+    - 'Miscellaneous'
+    '''
+    cmaps = OrderedDict()
+    cmaps['Perceptually Uniform Sequential'] = [
+            'viridis', 'plasma', 'inferno', 'magma', 'cividis']
+    cmaps['Sequential'] = [
+            'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
+            'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
+            'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn']
+    cmaps['Diverging'] = [
+            'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu',
+            'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
+    cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
+                        'Dark2', 'Set1', 'Set2', 'Set3',
+                        'tab10', 'tab20', 'tab20b', 'tab20c']
+    cmaps['Miscellaneous'] = [
+            'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
+            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
+            'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
+    
+    return cmaps
