@@ -218,7 +218,7 @@ with PdfPages('output/growth_rate_per_well.pdf') as pdf:
     # Set ylim for plot
     ax[0][0].set_ylim([
         df_gp.gp_growth_rate.min() - \
-        abs(df_gp.growth_rate.min()) * 0.2,
+        abs(df_gp.gp_growth_rate.min()) * 0.2,
         df_gp.gp_growth_rate.max() * 1.2
     ])
     # Remove axis from all plots
