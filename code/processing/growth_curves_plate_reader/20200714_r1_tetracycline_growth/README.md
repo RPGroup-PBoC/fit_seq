@@ -1,6 +1,6 @@
 ---
 status: Rejected
-reason: experiment not yet completed
+reason: data makes no sense. clusters in the wrong way
 ---
 
 # 2020-07-14 Plate Reader Growth Measurement
@@ -60,3 +60,11 @@ plate.
 4. The plate was placed in a Biotek Gen5 plate reader and grown at 37ºC, shaking
    in a linear mode at the fastest speed. OD600 and YFP Measurements were taken
    every 20 minutes for approximately 24 hours..
+
+## Conclusions
+
+The conclusions here are made from a qualitative assessment of the data based on
+the `growth_plate_reader_exploration.ipynb` file.
+
+The data clusters by which side of the plate, rather than by which strain is on
+each well. This makes no sense, making the dataset completely useless.
