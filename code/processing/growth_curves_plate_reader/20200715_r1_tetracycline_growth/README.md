@@ -60,3 +60,13 @@ we opted for simply inoculating 10 µL of the saturated M9 culture.
 4. The plate was placed in a Biotek Gen5 plate reader and grown at 37ºC, shaking
    in a linear mode at the fastest speed. OD600 and YFP Measurements were taken
    every 25 minutes for approximately 24 hours.
+
+## Conclusions
+
+The conclusions here come from a qualitative assessment of the data done with
+the `growth_plate_reader_exploration.ipynb` notebook.
+
+This is the most reproducible data we've gotten so far. The only problem is that
+even among strains that should be different there is perfect overlap. This could
+mean that 0.5 µg/mL of tetracycline is too low of a concentration and needs to
+be increased.
