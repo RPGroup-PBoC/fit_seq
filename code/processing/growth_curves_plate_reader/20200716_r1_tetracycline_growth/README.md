@@ -1,6 +1,6 @@
 ---
 status: Rejected
-reason: experiment not yet completed
+reason: data follows exact opposite trend
 ---
 
 # 2020-07-16 Plate Reader Growth Measurement
@@ -63,3 +63,12 @@ saturated M9 culture.
 4. The plate was placed in a Biotek Gen5 plate reader and grown at 37ºC, shaking
    in a linear mode at the fastest speed. OD600 and YFP Measurements were taken
    every 25 minutes for approximately 24 hours.
+
+## Conclusions
+
+Conclusions come from a qualitative assessment of the data based on the 
+`growth_plate_reader_exploration.ipynb` file.
+
+The data follows the exact opposite trend. It is very possible that the plate
+was inverted and in reality the cells are behaving as expected, but because of
+the lack of other way to check for this, the data is then useless.
