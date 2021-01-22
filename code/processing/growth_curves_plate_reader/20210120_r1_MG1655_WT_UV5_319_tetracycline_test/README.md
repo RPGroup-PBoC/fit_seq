@@ -19,7 +19,11 @@ Here we do a first experiment with strains containing various promoters and tetA
 
 
 
+## Plate Layout
 
+**96 plate layout**
+
+![plate layout](output/plate_layout.png)
 
 ## Notes & Observations
 For this experiment we used new 96-well plates from Eppendorf that are build with an extra space outside the outer wells that can be filled with water to prevent evaporation in the wells on the outside. While there was no visible evaporation in this experiment, we need to quantitatively compare growth rates across the plates, which we will do next.
