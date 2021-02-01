@@ -18,7 +18,7 @@ matplotlib.use('Agg')
 fit_seq.viz.pboc_style_mpl()
 
 # List data to be read
-TABLES = ["OD600", "YFP"]
+TABLES = ["OD600"]
 
 # Find date
 workdir = os.getcwd().split('/')[-1]
@@ -26,7 +26,7 @@ DATE = int(workdir.split('_')[0])
 RUN_NO = int(workdir.split('_')[1][-1])
 # %%
 # Load the data.
-file = glob.glob(f'{homedir}/data/plate_reader/{DATE}_r{RUN_NO}_*.csv')[0]
+file = glob.glob(f'{homedir}/data/plate_reader/{DATE}_r{RUN_NO}_*.txt')[0]
 
 # Read features on plate layout
 xl = pd.ExcelFile(f'./{DATE}_plate_layout.xlsx')
