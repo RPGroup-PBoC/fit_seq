@@ -6,6 +6,7 @@ from . import viz
 from . import seq
 from . import popgen
 from . import image
+from . import growth_models
 
 __author__ = """Manuel Razo"""
 __email__ = """mrazomej {at} caltech.edu"""
