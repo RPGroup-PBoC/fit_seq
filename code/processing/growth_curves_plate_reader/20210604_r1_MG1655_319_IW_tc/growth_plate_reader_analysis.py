@@ -8,6 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import fit_seq.viz
+import fit_seq
 import seaborn as sns
 import statsmodels.api as sm
 import git
@@ -53,7 +54,7 @@ blank_vals = {t: val['OD600'].mean() for t, val in
 # as well as background subtracted OD values.
 for k, v in blank_vals.items():
     data.loc[data['time_min'] == k, 'blank_val'] = v
-data['OD_sub'] = data['OD600'] - data['blank_val']
+data['OD_sub'] = data['OD600']# - data['blank_val']
 
 # %%
 # Compute growth rate for individual well data
@@ -104,6 +105,7 @@ if (not REPLOT):
             "rho_param": [1000, 50],  # parameters for rho prior
         }
 
+
         print(f"Sampling GP for well {group[0]}")
         samples = sm.sample(
             data=data,
@@ -113,22 +115,33 @@ if (not REPLOT):
         )
         print("Done!")
         samples = az.from_cmdstanpy(posterior=samples)
-
-        # Extract GP OD data, stacking together chains and draws as a single 
-        # dimension
+        # Extract posterior predicitve check and stack
         data_ppc = samples.posterior["y_predict"].stack(
             {"sample": ("chain", "draw")}
         ).transpose("sample", "y_predict_dim_0")
+
+        # Fit Logistic Growth
+        med_growth_rate, med_K, samples_log = fit_seq.growth_models.logistic_growth_fit(t, y, return_samples=True)
+        data_ppc_log = samples_log.posterior["y_predict"].stack(
+            {"sample": ("chain", "draw")}
+        ).transpose("sample", "y_predict_dim_0")
+        df = df.assign(
+            logistic_growth_rate = med_growth_rate,
+            logistic_carrying_capacity = med_K
+        )
         # Append inferred OD columns
         df = df.assign(
             gp_OD600 = np.median(data_ppc.squeeze().values, axis=0),
+            log_OD600 = np.median(data_ppc_log.squeeze().values, axis=0),
             gp_OD600_std = np.std(data_ppc.squeeze().values, axis=0),
+            log_OD600_std = np.std(data_ppc_log.squeeze().values, axis=0),
         )
         # Extract GP derivative data, stacking together chains and draws as a 
         # single dimension
         data_ppc = samples.posterior["dy_predict"].stack(
             {"sample": ("chain", "draw")}
         ).transpose("sample", "dy_predict_dim_0")
+        
         # Append inferred derivative columns
         df = df.assign(
             gp_growth_rate = np.median(data_ppc.squeeze().values, axis=0),

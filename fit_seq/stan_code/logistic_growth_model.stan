@@ -34,7 +34,7 @@ parameters{
     // Initial OD
     real <lower=0> y_0;
     //
-    real sigma;
+    real <lower=0>sigma;
 }
 
 transformed parameters {
