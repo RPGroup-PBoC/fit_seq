@@ -1,25 +1,18 @@
 ---
-status: Rejected
-reason: experiment not yet completed
+status: Processing
+reason: 
 ---
 
-# YYYY-MM-DD Plate Reader Growth Measurement
+# 2021-05-08 Plate Reader Growth Measurement
 
 ## Purpose
-This experiment aims to measure the growth rate of the *E. coli* strains of interest in media with XX selection.
-
+This experiment aims to measure the growth rate of wild type *E. coli* (MG1655) across the well plate we are intending on using for future experiments. The goal is to check for potential systematic differences in growth rates across the plate. There are no antibiotics used in this run to have a uniform distribution in growth conditions across the plate
 ## Strain Information
 
 | Plasmid | Genotype | Host Strain | Shorthand |
 | :------ | :------- | ----------: | --------: |
-| `pZS4*5-mCherry`| `galK<>25O1+11-sacB-cmR-YFP` |  HG105 |`O1 R0` |
-| `pZS4*5-mCherry`| `galK<>25O1+11-sacB-cmR-YFP` |  HG104 |`O1 R22` |
-| `pZS4*5-mCherry`| `galK<>25O1+11-sacB-cmR-YFP`, `ybcN<>4*5-RBS1027-lacI` |  HG105 |`O1 R260` |
-| `pZS4*5-mCherry`| `galK<>25O1+11-sacB-cmR-YFP`, , `ybcN<>4*5-RBS1L-lacI` |  HG105 |`O1 R1740` |
-| `pZS4*5-mCherry`| `galK<>25O2+11-sacB-cmR-YFP` |  HG105 |`O2 R0` |
-| `pZS4*5-mCherry`| `galK<>25O2+11-sacB-cmR-YFP` |  HG104 |`O2 R22` |
-| `pZS4*5-mCherry`| `galK<>25O2+11-sacB-cmR-YFP`, `ybcN<>4*5-RBS1027-lacI` |  HG105 |`O2 R260` |
-| `pZS4*5-mCherry`| `galK<>25O2+11-sacB-cmR-YFP`, , `ybcN<>4*5-RBS1L-lacI` |  HG105 |`O2 R1740` |
+| none | wild type |  MG1655 | MG1655 |
+
 
 ## Plate Layout
 
@@ -29,7 +22,7 @@ This experiment aims to measure the growth rate of the *E. coli* strains of inte
 
 
 ## Notes & Observations
-
+The layout was intended to be a checkboard pattern, but Tom was unable to do it, for reasons unknown. 
 
 ## Analysis Files
 
@@ -43,15 +36,13 @@ This experiment aims to measure the growth rate of the *E. coli* strains of inte
 
 ## Experimental Protocol
 
-1. Cells as described in "Strain Information" were grown to saturation in 0.5 mL
-of LB in a deep 96 well plate.
+1. Cells as described in "Strain Information" were grown to saturation in 5 mL
+of LB overnight.
 
-2. Cells were diluted 1:10,000 into M9 + 0.5% glucose media on a new deep 96
-well plate 12 hours before the experiment for cells to be at exponential growth.
+2. Cells were diluted 1:1000 into M9 + 0.5% glucose media the next morning and were grown for 8h at 37C (250rpm).
 
-3. The cells were then diluted 1:40 into the plate reader 96 well plate with a
-total volume of 300 µL.
+3. OD600 of the grown culture was measured and then cells were diluted into 300µl of media in the 96 well plate to a final OD of 0.01.
 
 4. The plate was placed in a Biotek Gen5 plate reader and grown at 37C, shaking
-in a linear mode at the fastest speed. Measurements were taken every 7 minutes
-for approximately 36 hours.
+in a linear mode at the fastest speed. Measurements were taken every 25 minutes
+for approximately 24 hours.

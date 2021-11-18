@@ -46,14 +46,14 @@ REPLOT = False
 data = pd.read_csv(f'output/{DATE}_r{RUN_NO}_growth_plate.csv')
 
 # Generate a dictionary of the mean blank at each time point.
-blank_vals = {t: val['OD600'].mean() for t, val in
-              data[data['strain'] == 'blank'].groupby(['time_min'])}
+#blank_vals = {t: val['OD600'].mean() for t, val in
+#             data[data['strain'] == 'blank'].groupby(['time_min'])}
 
 # Add mean blank values for each time point to the dataframe,
 # as well as background subtracted OD values.
-for k, v in blank_vals.items():
-    data.loc[data['time_min'] == k, 'blank_val'] = v
-data['OD_sub'] = data['OD600'] - data['blank_val']
+#for k, v in blank_vals.items():
+#    data.loc[data['time_min'] == k, 'blank_val'] = v
+data['OD_sub'] = data['OD600']# - data['blank_val']
 
 # %%
 # Compute growth rate for individual well data
