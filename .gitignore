@@ -74,3 +74,4 @@ data/microscopy
 _site/
 */stan_code/*
 library.bib
+**/stan/
