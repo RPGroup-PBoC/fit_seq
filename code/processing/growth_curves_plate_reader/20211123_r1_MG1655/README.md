@@ -17,18 +17,18 @@ In this experiment I compared the growth curves of wild type *E. coli* in two di
 
 **96 plate layout**
 
-![plate layout](output/plate_layout.png)
+![plate layout](output/plate_layout.pdf)
 
 
 ## Analysis Files
 
 **Whole Plate Growth Curves**
 
-![plate layout](output/growth_plate_summary.png)
+![plate layout](output/growth_plate_summary.pdf)
 
 **Whole Plate Growth Rate Inferences**
 
-![plate layout](output/growth_rate_summary.png)
+![plate layout](output/growth_rate_summary.pdf)
 
 ## Experimental Protocol
 

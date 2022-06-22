@@ -1,9 +1,9 @@
 functions {
     // Function to generate posterior predictive samples
     vector gp_ppc_rng(
-        real[] x_ppc,  // time points where to evaluate ppc
+        array[] real x_ppc,  // time points where to evaluate ppc
         vector y,  // OD measurements
-        real[] x_data,  // time points for OD measurements
+        array[] real x_data,  // time points for OD measurements
         real alpha,  // marginal standard deviation
         real rho,  // time scale
         real sigma,  // measurement error

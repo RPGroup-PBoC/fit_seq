@@ -64,10 +64,14 @@ CSV.write("$dir/output/$(DATE)_r$(RUN_NO)_growth_plate.csv", df)
 
 # Make plot
 
-fig = Figure()
+fig = Figure(resolution=(800, 400))
 ax1 = Axis(fig[1, 1])
 ax1.xlabel = "time [min]"
 ax1.ylabel = "normalized OD600"
+
+ax2 = Axis(fig[1, 2])
+ax2.xlabel = "time [min]"
+ax2.ylabel = "log(normalized OD600)"
 
 df_means = DataFrames.DataFrame()
 
@@ -83,9 +87,14 @@ for (strain, color) in zip(df.strain |> unique, ColorSchemes.seaborn_colorblind)
         lines!(ax1, mean_df.time_min, mean_df.OD_mean, label=strain)
         scatter!(ax1, mean_df.time_min, mean_df.OD_mean)
         errorbars!(ax1, mean_df.time_min, mean_df.OD_mean, mean_df.OD_std)
+        
+        lines!(ax2, mean_df.time_min, log.(mean_df.OD_mean), label=strain)
+        scatter!(ax2, mean_df.time_min, log.(mean_df.OD_mean))
+        #errorbars!(ax2, mean_df.time_min, log.(mean_df.OD_mean), log.(mean_df.OD_std))
     end
 end
 
 CSV.write("$dir/output/$(DATE)_r$(RUN_NO)_growth_mean.csv", df_means)
 axislegend(ax1, position=:lt)#, merge = merge, unique = unique)
 CairoMakie.save("$dir/output/$(DATE)_r$(RUN_NO)_all_curves.pdf", fig)
+fig

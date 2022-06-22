@@ -103,7 +103,8 @@ function plot_samples_gp(df, data, fig, i, title=nothing)
         [df[!, x] for x in y_gp],
         data[1],
         ax1,
-        data=data
+        data=data,
+        data_kwargs=Dict(:markersize => 6)
         )
 
     ax2 = Jedi.viz.predictive_regression(
@@ -132,7 +133,8 @@ function plot_samples_exp(df, data, fig, i, title=nothing)
         [df[!, x] for x in y_ppc],
         data[1],
         ax1,
-        data=data
+        data=data,
+        data_kwargs=Dict(:markersize => 6)
         )
         
     return fig
@@ -142,7 +144,7 @@ end
 function analyze_plate(data_df::DataFrames.DataFrame)
     # Get wells
     wells = data_df.well |> unique
-    #wells = wells[[1, 50]]
+    wells = wells
 
     # Define plotting canvas
     fig_gp = Figure(resolution=(600, 300*length(wells)))
@@ -159,7 +161,7 @@ function analyze_plate(data_df::DataFrames.DataFrame)
         sub_df = data_df[data_df.well .== well, :]
         x = sub_df[!, "time_min"]
         y = sub_df[!, "OD600"]
-
+        
         println("  Running Gaussian Process...")
         # Run Gaussian process
         df_gp, sum_gp = run_stan_gp(x, y, sm_gp)
@@ -203,10 +205,11 @@ function analyze_plate(data_df::DataFrames.DataFrame)
         # Run Exponential model
         println("  Running Exponential Growth Model...")
 
-        ind1 = findfirst(x -> x > 0.1, y)
-        ind2 = findfirst(x -> x > 0.4, y)
+        ind1 = findfirst(x -> x > exp(-2), y)
+        ind2 = findfirst(x -> x > exp(-1), y)
         x_exp = x[ind1:ind2]
         y_exp = y[ind1:ind2]
+
         df_exp, summary_exp = run_stan_exp(x_exp, y_exp, sm_exp)
         if summary_exp[summary_exp.parameters .== :divergent__, "mean"][1] != 0
             println("There were divergences! $(summary_exp[summary_exp.parameters .== :divergent__, "mean"][1])")
@@ -218,10 +221,10 @@ function analyze_plate(data_df::DataFrames.DataFrame)
         )
         append!(return_sum_df, _df)
         fig_gp = plot_samples_gp(df_gp, [x, y], fig_gp, i, "Gaussian Process: $well")
-        fig_exp = plot_samples_exp(df_exp, [x_exp, y_exp], fig_exp, i, "Exponential Growth: $well")
+        fig_exp = plot_samples_exp(df_exp, [x_exp, log.(y_exp)], fig_exp, i, "Exponential Growth: $well")
     end
-    return return_df, return_sum_df, fig_gp, fig_exp
 
+    return return_df, return_sum_df, fig_gp, fig_exp
 end
 
 return_df, return_sum_df, fig_gp, fig_exp = analyze_plate(data_df)
